@@ -6,6 +6,16 @@
   - name: updating apt
     command : sudo apt-get update
 
+  - name: install java 11
+    command: sudo apt-get install fontconfig openjdk-11-jre
+  - become: yes
+    become-user : root
+
+  - name: install maven
+    command: sudo apt-get install maven=3.6.3-1
+  - become: yes
+    become-user : root
+
   - name : Install Docker
     command : sudo apt-get install -y docker.io
     become : yes
@@ -16,5 +26,4 @@
     become : yes
     become_user : root
 
-  - name: Deploy Docker Container
-    command: docker run -itd -p 8084:8082 shubhamkushwah123/medicure:1.0
+
