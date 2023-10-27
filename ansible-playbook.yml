@@ -1,5 +1,5 @@
 - name: Configure Docker on EC2 Instances
-  hosts: Jenkins-slave
+  hosts: project
   become: true
   connection: ssh
   tasks:
