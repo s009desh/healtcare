@@ -48,7 +48,7 @@ pipeline {
             }
         }
         
-        stage('Sending yaml file to test server (Jenkins Slave)') {
+        stage('Sending yaml file to production servers (Jenkins Slave)') {
             agent { label 'jenkins_slave' }
             steps {
                 sshPublisher(publishers: [sshPublisherDesc(configName: 'kubernetes', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '''kubectl apply -f healtcare.yml''', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '.', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '*.yml')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])

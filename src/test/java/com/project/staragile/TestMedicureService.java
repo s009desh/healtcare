@@ -17,5 +17,10 @@ public class TestMedicureService {
 		Doctor doctor = new Doctor("MP1110","Shubham","Neurologist","15 Years");
 		assertEquals(doctor.getDoctorRegistrationId(), doctorService.registerDummyDoctor().getDoctorRegistrationId());
 	}
+	
+	public void testRegisterDoctor() {
+		Doctor doctor = new Doctor("MH1196","Sourabh","Physician","15 Years");
+		assertEquals(doctor.getDoctorRegistrationId(), doctorService.registerDummyDoctor().getDoctorRegistrationId());
+	}
 
 }

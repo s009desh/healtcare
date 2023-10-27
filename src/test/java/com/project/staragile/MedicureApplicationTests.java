@@ -16,10 +16,20 @@ class MedicureApplicationTests {
 	
 	@Test
 	void contextLoads() {
+		
 	}
 	
 	@Test
 	void testService() {
 	  assertEquals(doctorService.sayHello(), "Hello from Doctor Shubham");
 	}
+	
+	@Test
+	void testService() {
+	  assertEquals(doctorService.sayHello(), "Hello from Doctor Sourabh");
+	}
+	
+	void testService() {
+		  assertEquals(MedicureService.sayHello(), "priya");
+		}
 }
