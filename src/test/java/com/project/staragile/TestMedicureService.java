@@ -18,9 +18,6 @@ public class TestMedicureService {
 		assertEquals(doctor.getDoctorRegistrationId(), doctorService.registerDummyDoctor().getDoctorRegistrationId());
 	}
 	
-	public void testRegisterDoctor() {
-		Doctor doctor = new Doctor("MH1196","Sourabh","Physician","15 Years");
-		assertEquals(doctor.getDoctorRegistrationId(), doctorService.registerDummyDoctor().getDoctorRegistrationId());
-	}
+
 
 }
