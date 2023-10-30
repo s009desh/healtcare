@@ -5,19 +5,15 @@
   tasks:
     - name: Updating apt
       command: sudo apt-get update
-
-    - name: Install Java 11
-      command: sudo apt-get install -y openjdk-11-jre
-      become: yes
-
-    - name: Install Maven
-      command: sudo apt-get install -y maven=3.6.3-1
-      become: yes
-
+      
     - name: Install Docker
       command: sudo apt-get install -y docker.io
       become: yes
 
     - name: Start Docker Service
       command: sudo systemctl start docker
+      become: yes
+
+    - name: Start Docker Service
+      command: docker run --name healthcare -d -p 8084:8082 s009/healthcare:1.0
       become: yes
