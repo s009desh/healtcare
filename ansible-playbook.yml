@@ -14,12 +14,6 @@
       command: sudo systemctl start docker
       become: yes
 
-    - name : stop existing containers
-      shell: docker stop $(docker ps -a -q)
-      
-    - name : delete all containers
-      shell: docker rm $(docker ps -a -q)
-
     - name: Start Docker Service
       command: docker run --name healthcare -d -p 8084:8082 s009/healthcare:1.0
       become: yes
