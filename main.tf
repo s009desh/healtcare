@@ -1,7 +1,7 @@
 provider "aws" {
   region     = "us-east-1"
   access_key = "ACCESS-keys"
-  secret_key = "secret Access keys"
+  secret_key = "secert Acces keys"
 }
 
 resource "aws_instance" "jenkins_master" {
@@ -25,10 +25,6 @@ resource "aws_instance" "jenkins_master" {
               sudo apt-get update
               sudo apt-get install -y fontconfig openjdk-11-jre
               sudo apt-get install -y jenkins
-              sudo apt-get install -y software-properties-common
-              sudo apt-add-repository -y ppa:ansible/ansible
-              sudo apt-get update
-              sudo apt-get install -y ansible
               EOF
 }
 
