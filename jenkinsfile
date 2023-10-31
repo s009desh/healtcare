@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent { label 'jenkins_slave' }
+
+    tools {
+        maven 'Maven'
+    }
 
     stages {
         stage('Git Checkout (Built-In-Node)') {
@@ -8,50 +12,50 @@ pipeline {
             }
         }
 
-        stage('Ansible Deployment (Built-In-Node)') {
+        stage('Maven Clean and Package') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Publish HTML Report') {
+            steps {
+                publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '/home/devopsadmin/workspace/Healthcare-project/target/surefire-reports', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+            }
+        }
+
+        stage('Docker Build Image') {
             steps {
                 script {
-                    ansiblePlaybook become: true, credentialsId: 'ansible', disableHostKeyChecking: true, installation: 'ansible', inventory: '/etc/ansible/hosts', playbook: 'ansible-playbook.yml', vaultTmpPath: ''
+                    sh 'docker build -t s009/healthcare:1.0 .'
                 }
             }
         }
 
-        stage('Git Checkout and Maven Build (Jenkins Slave)') {
-            agent { label 'jenkins_slave' }
+        stage('Docker Login and Push to Repo') {
             steps {
-                git branch: 'main', url: 'https://github.com/s009desh/healtcare.git'
-                sh 'mvn clean package'
-            }
-        }
-        
-        stage('Publish HTML Report (Jenkins Slave)') {
-            agent { label 'jenkins_slave' }
-            steps {
-                publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '/home/jenkins/workspace/testing/target/surefire-reports', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-            }
-        }
-        
-        stage('Building the Docker image (Jenkins Slave)') {
-            agent { label 'jenkins_slave' }
-            steps {
-                sh 'docker build -t s009/healthcare:1.0 .'
-            }
-        }
-        
-        stage('Pushing into dockerhub (Jenkins Slave)') {
-            agent { label 'jenkins_slave' }
-            steps {
-                withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerpass')]) {
-                    sh "docker login -u s009 -p \${dockerpass}"
-                    sh "docker push s009/healthcare:1.0"
+                script {
+                    withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerpass')]) {
+                        sh 'docker login -u s009 -p ${dockerpass}'
+                        sh "docker push s009/healthcare:1.0"
+                    }
                 }
             }
         }
         
-        stage('Sending yaml file to production servers (Jenkins Slave)') {
-            agent { label 'jenkins_slave' }
+        stage('Ansible Deployment to Test on QAserver') {
             steps {
-                sshPublisher(publishers: [sshPublisherDesc(configName: 'kubernetes', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '''kubectl apply -f healtcare.yml''', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '.', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '*.yml')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                script {
+                    ansiblePlaybook credentialsId: 'devopsadmin', installation: 'Ansible', inventory: '/etc/ansible/hosts', playbook: 'ansible-playbook.yml', vaultTmpPath: ''
+                }
+            }
+        }
+        
+        stage('Sending the artifact over Kubernetes master ') {
+            steps {
+                script {
+                    sshPublisher(publishers: [sshPublisherDesc(configName: 'kubernetes', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'kubectl apply -f healtcare.yml', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '.', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '*.yml')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                }
             }
         }
     }
